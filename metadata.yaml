@@ -1,0 +1,7 @@
+name: astrbot_plugin_occasional_chat
+display_name: 偶尔看群说话
+desc: 偶尔看群、动态帧判定、主动接话与静默
+help: 按看群窗口和动态帧决定是否接话；短上下文只判断，完整上下文生成回复
+version: v1.11.0
+author: 洛希
+repo: https://github.com/versifine/astrbot_plugin_occasional_chat
