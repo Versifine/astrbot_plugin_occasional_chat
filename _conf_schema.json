@@ -1,0 +1,239 @@
+﻿{
+  "markers": {
+    "description": "静默标记",
+    "type": "list",
+    "default": [
+      "<silent>",
+      "[[silent]]",
+      "<NO_RESPONSE>",
+      "<NO_REPLY>",
+      "<NO_ANSWER>",
+      "<SKIP>"
+    ],
+    "hint": "LLM 回复里出现这些标记就静默；大小写不敏感。包含 <NO_RESPONSE> 等常见的“无回复”控制标记。"
+  },
+  "on_match": {
+    "description": "命中后的处理方式",
+    "type": "string",
+    "options": [
+      "silent",
+      "strip"
+    ],
+    "default": "silent",
+    "hint": "silent: 整条不发；strip: 去掉标记后照常发送，剩下为空才静默"
+  },
+  "silence_probability": {
+    "description": "随机沉默概率",
+    "type": "float",
+    "default": 0.0,
+    "hint": "0 到 1，0 表示关闭。只作用于普通回复，不影响主动判定的单次判断。"
+  },
+  "cooldown_seconds": {
+    "description": "静默冷却",
+    "type": "int",
+    "default": 0,
+    "hint": "同一会话刚静默过，这段时间内不再触发随机沉默，防止连续装死"
+  },
+  "scope": {
+    "description": "随机沉默作用范围",
+    "type": "string",
+    "options": [
+      "all",
+      "group",
+      "private"
+    ],
+    "default": "all",
+    "hint": "只限制随机沉默；<silent> 等静默标记始终生效"
+  },
+  "strip_marker_in_strip_mode": {
+    "description": "strip 模式下清理装饰阶段残留的标记",
+    "type": "bool",
+    "default": true
+  },
+  "group_policy": {
+    "description": "群聊接话策略",
+    "type": "string",
+    "options": [
+      "hint",
+      "mention",
+      "off"
+    ],
+    "default": "hint",
+    "hint": "hint: 注入场景+提示词，由模型自己判断；mention: 只有 @/叫名字/引用才调 LLM；off: 群聊场景、看群开窗和门控全部不接管"
+  },
+  "context_hint": {
+    "description": "群聊语境提示词",
+    "type": "text",
+    "default": "【群聊判定规则】你正在一个群聊里，上面那条消息不一定是在对你说话。\n算「对你说的」只有这几种：@你、引用你的消息、叫你的名字、明确在问你或等你接话。\n其余都算「不是对你说的」：群友之间互相聊天、提问别人、自言自语、刷屏、纯表情图片转发、话题跟你无关，以及只是接着上一条继续聊——哪怕你上一轮回过这个人，也不代表这一轮还在跟你说话。\n判定为不是对你说的，就只输出 <silent> 这一串，别的什么都不要写。\n不确定就沉默。想主动插一句也行，前提是你真的看懂了这段对话并且能接得上。",
+    "hint": "group_policy 为 hint 时追加到系统提示词"
+  },
+  "bot_names": {
+    "description": "bot 的称呼",
+    "type": "list",
+    "default": [],
+    "hint": "填写你的 bot 称呼；群消息里出现这些词算在叫 bot。"
+  },
+  "trigger_keywords": {
+    "description": "额外触发词",
+    "type": "list",
+    "default": [],
+    "hint": "出现即视为在跟 bot 说话，比如「bot」「助手」"
+  },
+  "enable_scene": {
+    "description": "群聊场景注入",
+    "type": "bool",
+    "default": true,
+    "hint": "把群聊流、触发方式、你上次发言时间作为不可信背景附加到用户消息，让模型自己判断要不要说话"
+  },
+  "scene_window": {
+    "description": "场景里带几条最近消息",
+    "type": "int",
+    "default": 12
+  },
+  "scene_max_history": {
+    "description": "每个群缓存多少条消息",
+    "type": "int",
+    "default": 60
+  },
+  "scene_max_groups": {
+    "description": "最多缓存多少个群",
+    "type": "int",
+    "default": 100
+  },
+  "scene_text_limit": {
+    "description": "每条消息截断长度",
+    "type": "int",
+    "default": 60
+  },
+  "watch_enabled": {
+    "description": "启用看群时段",
+    "type": "bool",
+    "default": true,
+    "hint": "开启后每个周期自然开窗一次，每次只做一次主动判定；窗口外只记录不回复。"
+  },
+  "watch_period_seconds": {
+    "description": "看群周期（秒）",
+    "type": "int",
+    "default": 600,
+    "hint": "每个群独立的自然开窗周期，从该群第一条消息开始计时；@ 不移动这个时间轴。"
+  },
+  "watch_duration_seconds": {
+    "description": "每次看群多久（秒）",
+    "type": "int",
+    "default": 180,
+    "hint": "每个群独立计时，周期内的前这么多秒算看群；超过周期按周期处理，默认 180。"
+  },
+  "at_boost_seconds": {
+    "description": "被叫到后续期（秒）",
+    "type": "int",
+    "default": 180,
+    "hint": "被 @/引用/叫名字时立即开一个独立 boost 窗口，并保持这么久；不移动自然窗口时间轴。"
+  },
+  "watch_hint": {
+    "description": "看群时的提示词",
+    "type": "text",
+    "default": "【看群模式】你现在只是在群里随便看看，不是每条都得接。\n先判断两件事：一，这条是不是在跟你说话（@你、引用你、叫你的名字、直接问你）；二，这个话题是不是你感兴趣、能接得上的。\n两个都满足就插一句，短、口语、别解释别总结；只满足一半、或者刚说过话还没过两句，就输出 <silent>，别的什么都别写。"
+  },
+  "proactive_enabled": {
+    "description": "启用主动入窗判定",
+    "type": "bool",
+    "default": true,
+    "hint": "自然开窗时由插件自己触发一次判断，不再依赖 AstrBot 的主动回复概率。"
+  },
+  "proactive_whitelist": {
+    "description": "主动判定群白名单",
+    "type": "list",
+    "default": [],
+    "hint": "留空则读取 AstrBot provider_ltm_settings.active_reply.whitelist。"
+  },
+  "proactive_min_confidence": {
+    "description": "主动发言最低置信度",
+    "type": "float",
+    "default": 0.5,
+    "hint": "主模型自检 confidence 低于该值直接静默；默认 0.5，建议 0.4-0.6。"
+  },
+  "proactive_context_messages": {
+    "description": "主动判定带几条最近消息",
+    "type": "int",
+    "default": 20,
+    "hint": "每个帧判定取最近多少条文本消息。"
+  },
+  "proactive_quote_enabled": {
+    "description": "允许主动回复选择引用",
+    "type": "bool",
+    "default": true,
+    "hint": "主模型返回 quote 消息 id 时由插件拼引用；需要关闭 AstrBot 的 reply_with_quote。"
+  },
+  "reviewer_provider_id": {
+    "description": "审查器模型 ID",
+    "type": "string",
+    "default": "qwen/qwen3.7-flash",
+    "hint": "只做 SEND/VETO 二分类，建议用便宜且支持稳定 JSON/短输出的模型。"
+  },
+  "reviewer_timeout_seconds": {
+    "description": "审查器超时（秒）",
+    "type": "int",
+    "default": 5,
+    "hint": "超时按 VETO 处理，失败关闭。"
+  },
+  "reviewer_context_messages": {
+    "description": "审查器带几条最近消息",
+    "type": "int",
+    "default": 10,
+    "hint": "审查器只需要候选回复附近的上下文。"
+  },
+  "frame_min_seconds": {
+    "description": "最小帧间隔（秒）",
+    "type": "int",
+    "default": 45,
+    "hint": "最小帧间隔；进入窗口后的第一帧立即允许判定，之后至少间隔这么久。"
+  },
+  "frame_base_seconds": {
+    "description": "基础帧间隔（秒）",
+    "type": "int",
+    "default": 90,
+    "hint": "普通活跃度下的判定间隔。"
+  },
+  "frame_max_seconds": {
+    "description": "最大帧间隔（秒）",
+    "type": "int",
+    "default": 180,
+    "hint": "安静或连续静默时使用；会被看群时长截断。"
+  },
+  "max_checks_per_window": {
+    "description": "每窗最多判定次数",
+    "type": "int",
+    "default": 2,
+    "hint": "防止一个窗口内反复判。"
+  },
+  "min_proactive_gap_seconds": {
+    "description": "主动发言最小间隔（秒）",
+    "type": "int",
+    "default": 300,
+    "hint": "两次主动发言至少间隔这么久；0 表示关闭。"
+  },
+  "banter_review_floor": {
+    "description": "玩梗低置信度送审下限",
+    "type": "float",
+    "default": 0.3,
+    "hint": "当 confidence 低于主动阈值，但 value=join_fun 且 risk 非 high 时，达到该值仍交给审查器决定；0 表示关闭。"
+  },
+  "reviewer_enabled": {
+    "description": "启用审查器",
+    "type": "bool",
+    "default": true,
+    "hint": "关闭后主模型通过自检/阈值就直接发送，不再调用 qwen; 适合暂时放宽。"
+  },
+  "decision_timeout_seconds": {
+    "description": "短上下文判定超时（秒）",
+    "type": "int",
+    "default": 15,
+    "hint": "短上下文只判断要不要接；超时按 SILENT 处理。"
+  },
+  "decision_provider_id": {
+    "description": "短上下文判定模型 ID",
+    "type": "string",
+    "default": "",
+    "hint": "留空使用当前会话主模型；可填 qwen/qwen3.7-flash 或 deepseek/deepseek-flash。"
+  }
+}
