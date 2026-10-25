@@ -31,7 +31,7 @@ AstrBot 群聊插件：偶尔看群、按动态帧判断要不要接话，并在
 |---|---|---|
 | `group_policy` | `hint` | `hint` 开看群；`mention` 只有被点名才回复；`off` 完全不接管 |
 | `proactive_enabled` | `true` | 是否开启主动看群判定 |
-| `proactive_whitelist` | `[]` | 主动判定群白名单；留空则不主动判定 |
+| `proactive_whitelist` | `[]` | 主动判定群白名单；留空则读取 AstrBot `active_reply.whitelist`，两者都为空则不主动判定 |
 | `watch_period_seconds` | `600` | 每个群的自然开窗周期 |
 | `watch_duration_seconds` | `180` | 每次自然窗口持续多久 |
 | `at_boost_seconds` | `180` | 被 @/引用/叫名字/戳一戳后额外看群多久 |
